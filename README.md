@@ -12,8 +12,17 @@ You'll have tor running on your machine where you can connect on PORT=9050
 
 ## Usage
 
-    contents = Torex.get(url)
-    result   = Torex.post(url, params)
+When Tor is up and running add to your app config the following
+
+    config :torex,
+      :tor_server,
+        ip: '127.0.0.1', # note charlist here, not binary
+        port: 9050
+
+Make requests:
+
+    {:ok, contents} = Torex.get(url)
+    {:ok, result}   = Torex.post(url, params)
 
 ## Installation
 
