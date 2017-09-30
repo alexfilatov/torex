@@ -55,7 +55,8 @@ defmodule Torex.Mixfile do
     [
       {:poison, "~> 3.1.0"},
       {:httpoison, "~> 0.13.0"},
-      {:remix, "~> 0.0.2"}
+      {:remix, "~> 0.0.2"},
+      {:ex_doc, ">= 0.0.0", only: :dev}
     ]
   end
 end
