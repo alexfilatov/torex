@@ -14,15 +14,19 @@ You'll have tor running on your machine where you can connect on PORT=9050
 
 When Tor is up and running add to your app config the following
 
-    config :torex,
-      :tor_server,
-        ip: '127.0.0.1', # note charlist here, not binary
-        port: 9050
+```elixir
+config :torex,
+  :tor_server,
+    ip: '127.0.0.1', # note charlist here, not binary
+    port: 9050
+```
 
 Make requests:
 
-    {:ok, contents} = Torex.get(url)
-    {:ok, result}   = Torex.post(url, params)
+```elixir
+{:ok, contents} = Torex.get(url)
+{:ok, result}   = Torex.post(url, params)
+```
 
 ## Installation
 
