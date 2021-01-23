@@ -3,9 +3,9 @@
 use Mix.Config
 
 config :torex,
-  :tor_server,
-    ip: '127.0.0.1',
-    port: 9050
+       :tor_server,
+       ip: '127.0.0.1',
+       port: 9050
 
 # This configuration is loaded before any dependency and is restricted
 # to this project. If another project depends on this project, this
@@ -32,4 +32,4 @@ config :torex,
 # Configuration from the imported file will override the ones defined
 # here (which is why it is important to import them last).
 #
-import_config "#{Mix.env}.exs"
+import_config "#{Mix.env()}.exs"

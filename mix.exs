@@ -6,12 +6,12 @@ defmodule Torex.Mixfile do
       app: :torex,
       version: "0.1.0",
       elixir: "~> 1.5.1",
-      build_embedded: Mix.env == :prod,
-      start_permanent: Mix.env == :prod,
+      build_embedded: Mix.env() == :prod,
+      start_permanent: Mix.env() == :prod,
       deps: deps(),
       description: "Elixir connector to Tor network",
       package: package()
-   ]
+    ]
   end
 
   defp package do
@@ -27,7 +27,7 @@ defmodule Torex.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     # Specify extra applications you'll use from Erlang/Elixir
-    [extra_applications: apps(Mix.env), mod: {Torex, []}]
+    [extra_applications: apps(Mix.env()), mod: {Torex, []}]
   end
 
   defp apps(:prod) do
