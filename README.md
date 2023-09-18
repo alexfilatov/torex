@@ -1,5 +1,14 @@
 # Torex
 
+[![Coverage Status](https://coveralls.io/repos/github/alexfilatov/torex/badge.svg?branch=main)](https://coveralls.io/github/alexfilatov/torex?branch=main)
+[![Hex pm](https://img.shields.io/hexpm/v/torex.svg?style=flat)](https://hex.pm/packages/torex)
+[![Hex docs](http://img.shields.io/badge/hex.pm-docs-green.svg)](https://hexdocs.pm/torex)
+[![hex.pm downloads](https://img.shields.io/hexpm/dt/torex.svg?style=flat)](https://hex.pm/packages/torex)
+[![Project license](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Last Updated](https://img.shields.io/github/last-commit/alexfilatov/torex.svg)](https://github.com/alexfilatov/torex/commits/master)
+
+
+
 Very simple connector to TOR network. Basically this is HTTPoison client with proxy on Tor node.
 
 Before running this project you need to have tor node running.
