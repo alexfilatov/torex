@@ -54,7 +54,10 @@ Add to your `config/config.exs`:
 ```elixir
 config :torex,
   tor_host: ~c"127.0.0.1",
-  tor_port: 9050
+  tor_port: 9050,
+  # Optional: for circuit renewal (new exit node IP)
+  control_port: 9051,
+  control_password: "your_password"
 ```
 
 Note: `tor_host` uses a charlist (`~c"..."`) as required by the underlying `:hackney` library.
@@ -124,6 +127,72 @@ Test that your traffic is routing through Tor:
 IO.inspect(Jason.decode!(body))
 # => %{"IsTor" => true, "IP" => "..."}
 ```
+
+## Circuit Renewal (IP Rotation)
+
+For scraping or when you need a fresh exit node IP, use `renew_circuit/0`:
+
+```elixir
+# Get current IP
+{:ok, body} = Torex.get("https://api.ipify.org")
+IO.puts("Current IP: #{body}")
+
+# Request new circuit (new exit node)
+:ok = Torex.renew_circuit()
+
+# Wait a moment for the new circuit
+Process.sleep(1000)
+
+# Verify new IP
+{:ok, body} = Torex.get("https://api.ipify.org")
+IO.puts("New IP: #{body}")
+```
+
+### Tor Control Port Setup
+
+Circuit renewal requires the Tor control port. Add to your `torrc`:
+
+```text
+ControlPort 9051
+HashedControlPassword <your_hashed_password>
+```
+
+Generate a hashed password:
+
+```bash
+tor --hash-password "your_password"
+```
+
+### Scraping Example with IP Rotation
+
+```elixir
+defmodule Scraper do
+  @max_requests_per_ip 10
+
+  def scrape(urls) do
+    urls
+    |> Enum.chunk_every(@max_requests_per_ip)
+    |> Enum.flat_map(fn chunk ->
+      results = Enum.map(chunk, &fetch/1)
+
+      # Rotate IP after each batch
+      Torex.renew_circuit()
+      Process.sleep(1000)
+
+      results
+    end)
+  end
+
+  defp fetch(url) do
+    case Torex.get(url) do
+      {:ok, body} -> {:ok, url, body}
+      {:error, reason} -> {:error, url, reason}
+    end
+  end
+end
+```
+
+**Note:** Tor rate-limits circuit renewal to once per 10 seconds. Calling more frequently succeeds but won't change the circuit.
 
 ## License
 

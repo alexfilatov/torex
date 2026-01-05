@@ -16,8 +16,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved error handling with structured error tuples `{:error, {:http_error, status, body}}`
 
 ### Added
-- Mox-based test suite with comprehensive coverage
+- Circuit renewal via `Torex.renew_circuit/0` for IP rotation (requires Tor control port)
+- `Torex.Control` module for Tor control protocol commands
+- `Torex.Control.get_info/1` to query Tor status
+- Mox-based test suite with comprehensive coverage (18 tests)
 - `Torex.HTTPClient` behaviour for testability
+- `Torex.TCPClient` behaviour for control port testability
 - Content-Type header for POST requests
 - LICENSE file
 - CHANGELOG file
