@@ -1,5 +1,6 @@
 # Torex
 
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/alexfilatov/torex/tree/master.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/alexfilatov/torex/tree/master)
 [![Hex.pm](https://img.shields.io/hexpm/v/torex.svg)](https://hex.pm/packages/torex)
 [![Hex Docs](https://img.shields.io/badge/hex-docs-blue.svg)](https://hexdocs.pm/torex)
 [![Hex.pm Downloads](https://img.shields.io/hexpm/dt/torex.svg)](https://hex.pm/packages/torex)
