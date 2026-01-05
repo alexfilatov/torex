@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   test:
     docker:
-      - image: cimg/elixir:1.17.3-erlang-26.2
+      - image: cimg/elixir:1.17
     steps:
       - checkout
       - restore_cache:
