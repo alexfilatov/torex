@@ -6,12 +6,21 @@ defmodule Torex do
 
       config :torex,
         tor_host: ~c"127.0.0.1",
-        tor_port: 9050
+        tor_port: 9050,
+        # Optional: for circuit renewal
+        control_port: 9051,
+        control_password: "your_password"
 
   ## Usage
 
       {:ok, body} = Torex.get("http://example.onion")
       {:ok, body} = Torex.post("http://example.onion", %{key: "value"})
+
+  ## Circuit Renewal
+
+  To get a new exit node IP (useful for scraping):
+
+      :ok = Torex.renew_circuit()
   """
 
   require Logger
@@ -29,6 +38,24 @@ defmodule Torex do
   def post(url, params) do
     request(:post, url, Jason.encode!(params), [{"content-type", "application/json"}])
   end
+
+  @doc """
+  Requests a new Tor circuit, giving you a fresh exit node IP.
+
+  Useful for scraping when you need to rotate IPs. Note that Tor
+  rate-limits this to once per 10 seconds.
+
+  Requires Tor control port to be enabled. See `Torex.Control` for setup.
+
+  ## Examples
+
+      :ok = Torex.renew_circuit()
+
+      # Get new IP and make request
+      :ok = Torex.renew_circuit()
+      {:ok, body} = Torex.get("https://api.ipify.org")
+  """
+  defdelegate renew_circuit(), to: Torex.Control
 
   defp request(method, url, body \\ "", headers \\ []) do
     proxy = {:socks5, tor_host(), tor_port()}
