@@ -1,15 +1,23 @@
 version: 2.1
 
-orbs:
-  elixir: circleci/elixir@1.4.2
-
 jobs:
   test:
     docker:
       - image: cimg/elixir:1.17.3-erlang-26.2
     steps:
       - checkout
-      - elixir/mix-deps-get
+      - restore_cache:
+          keys:
+            - v1-mix-cache-{{ checksum "mix.lock" }}
+            - v1-mix-cache-
+      - run:
+          name: Install dependencies
+          command: mix deps.get
+      - save_cache:
+          key: v1-mix-cache-{{ checksum "mix.lock" }}
+          paths:
+            - deps
+            - _build
       - run:
           name: Compile
           command: mix compile --warnings-as-errors
