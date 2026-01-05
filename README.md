@@ -1,61 +1,130 @@
 # Torex
 
-[![Coverage Status](https://coveralls.io/repos/github/alexfilatov/torex/badge.svg?branch=main)](https://coveralls.io/github/alexfilatov/torex?branch=main)
-[![Hex pm](https://img.shields.io/hexpm/v/torex.svg?style=flat)](https://hex.pm/packages/torex)
-[![Hex docs](http://img.shields.io/badge/hex.pm-docs-green.svg)](https://hexdocs.pm/torex)
-[![hex.pm downloads](https://img.shields.io/hexpm/dt/torex.svg?style=flat)](https://hex.pm/packages/torex)
-[![Project license](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Last Updated](https://img.shields.io/github/last-commit/alexfilatov/torex.svg)](https://github.com/alexfilatov/torex/commits/master)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/alexfilatov/torex/tree/master.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/alexfilatov/torex/tree/master)
+[![Hex.pm](https://img.shields.io/hexpm/v/torex.svg)](https://hex.pm/packages/torex)
+[![Hex Docs](https://img.shields.io/badge/hex-docs-blue.svg)](https://hexdocs.pm/torex)
+[![Hex.pm Downloads](https://img.shields.io/hexpm/dt/torex.svg)](https://hex.pm/packages/torex)
+[![License](https://img.shields.io/hexpm/l/torex.svg)](https://opensource.org/licenses/MIT)
 
+Elixir HTTP client for making requests through the Tor network. Wraps HTTPoison with SOCKS5 proxy support for routing traffic through a local Tor node.
 
+## Requirements
 
-Very simple connector to TOR network. Basically this is HTTPoison client with proxy on Tor node.
-
-Before running this project you need to have tor node running.
-To install tor node for macos run this:
-
-    brew install tor
-    brew services start tor
-
-You'll have tor running on your machine where you can connect on PORT=9050
-
-## Usage
-
-When Tor is up and running add to your app config the following
-
-```elixir
-config :torex,
-  :tor_server,
-    ip: '127.0.0.1', # note charlist here, not binary
-    port: 9050
-```
-
-Make requests:
-
-```elixir
-{:ok, contents} = Torex.get(url)
-{:ok, result}   = Torex.post(url, params)
-```
+- Elixir 1.14+
+- A running Tor node
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `torex` to your list of dependencies in `mix.exs`:
+Add `torex` to your dependencies in `mix.exs`:
 
 ```elixir
 def deps do
-  [{:torex, "~> 0.1.0"}]
+  [{:torex, "~> 0.2.0"}]
 end
 ```
 
-## Contribution
+## Tor Setup
 
-1. Fork it
-2. Create feature/bugfix branch
-3. Code/fix
-4. Commit and push
-5. Create Pull Request
+### macOS
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/torex](https://hexdocs.pm/torex).
+```bash
+brew install tor
+brew services start tor
+```
+
+### Linux (Debian/Ubuntu)
+
+```bash
+sudo apt install tor
+sudo systemctl start tor
+```
+
+### Docker
+
+```bash
+docker run -d -p 9050:9050 dperson/torproxy
+```
+
+Tor runs on port 9050 by default.
+
+## Configuration
+
+Add to your `config/config.exs`:
+
+```elixir
+config :torex,
+  tor_host: ~c"127.0.0.1",
+  tor_port: 9050
+```
+
+Note: `tor_host` uses a charlist (`~c"..."`) as required by the underlying `:hackney` library.
+
+## Usage
+
+### GET requests
+
+```elixir
+{:ok, body} = Torex.get("http://example.onion")
+
+case Torex.get("http://check.torproject.org") do
+  {:ok, body} ->
+    IO.puts("Response: #{body}")
+  {:error, {:http_error, status, body}} ->
+    IO.puts("HTTP #{status}: #{body}")
+  {:error, %{reason: reason}} ->
+    IO.puts("Request failed: #{reason}")
+end
+```
+
+### POST requests
+
+POST requests automatically encode the body as JSON:
+
+```elixir
+{:ok, response} = Torex.post("http://example.onion/api", %{
+  username: "user",
+  password: "secret"
+})
+```
+
+### Error Handling
+
+Torex returns tagged tuples for all responses:
+
+```elixir
+case Torex.get(url) do
+  {:ok, body} ->
+    # Success - HTTP 200
+    process(body)
+
+  {:error, {:http_error, status_code, body}} ->
+    # Non-200 HTTP response
+    Logger.warning("HTTP #{status_code}: #{body}")
+
+  {:error, %{reason: :econnrefused}} ->
+    # Tor not running or unreachable
+    Logger.error("Cannot connect to Tor")
+
+  {:error, %{reason: :timeout}} ->
+    # Request timed out
+    Logger.error("Request timed out")
+
+  {:error, error} ->
+    # Other errors
+    Logger.error("Request failed: #{inspect(error)}")
+end
+```
+
+## Verifying Tor Connection
+
+Test that your traffic is routing through Tor:
+
+```elixir
+{:ok, body} = Torex.get("https://check.torproject.org/api/ip")
+IO.inspect(Jason.decode!(body))
+# => %{"IsTor" => true, "IP" => "..."}
+```
+
+## License
+
+MIT

@@ -1,0 +1,23 @@
+version: 2.1
+
+orbs:
+  elixir: circleci/elixir@1.4.2
+
+jobs:
+  test:
+    docker:
+      - image: cimg/elixir:1.17.3-erlang-26.2
+    steps:
+      - checkout
+      - elixir/mix-deps-get
+      - run:
+          name: Compile
+          command: mix compile --warnings-as-errors
+      - run:
+          name: Run tests
+          command: mix test
+
+workflows:
+  test:
+    jobs:
+      - test
